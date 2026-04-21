@@ -28,7 +28,7 @@ chmod +x build_env.sh
 ### Bước 2: Khởi động Container
 **Lưu ý quan trọng:** Bắt buộc phải ánh xạ (mount) thư mục `data` từ máy thật vào container để lưu trữ kết quả và không bị mất dữ liệu sau khi tắt.
 ```bash
-docker run -it --gpus all -v $(pwd)/data:/workspace/3dgrut/data vsfcore-3d-pipeline
+docker run -it --ipc=host --gpus all -v $(pwd)/data:/workspace/3dgrut/data vsfcore-3d-pipeline
 ```
 
 ---
