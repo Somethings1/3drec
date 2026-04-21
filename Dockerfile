@@ -54,6 +54,8 @@ RUN wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -
     bash miniconda.sh -b -p /opt/conda && \
     rm miniconda.sh
 ENV PATH="/opt/conda/bin:${PATH}"
+RUN conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main
+RUN conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r
 
 # ------------------------------------------------------------------------------
 # 5. Cài đặt 3DGRUT và Môi trường Python (Khu vực thay đổi thường xuyên)
