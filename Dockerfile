@@ -19,7 +19,7 @@ RUN apt-get update && apt-get install -y \
     qt6-base-dev libqt6opengl6-dev libqt6openglwidgets6 libqt6svg6-dev \
     libcgal-dev libceres-dev libsuitesparse-dev libcurl4-openssl-dev \
     libssl-dev libmkl-full-dev xvfb imagemagick-6.q16 ffmpeg wget curl \
-    libopenexr-dev && \
+    libopenexr-dev zip unzip && \
     rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /usr/include/opencv4

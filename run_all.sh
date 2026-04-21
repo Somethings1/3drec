@@ -167,7 +167,7 @@ if [ ! -f "$CACHE_DIR/stage2.done" ]; then
     python train.py --config-name apps/colmap_3dgut.yaml \
        path="$BASE_DIR" out_dir=runs \
        experiment_name="$EXP_NAME" \
-       export_usdz.enabled=true \
+       +export_usdz.enabled=true \
        dataset.downsample_factor="$DATA_COMP"
 
     touch "$CACHE_DIR/stage2.done"
