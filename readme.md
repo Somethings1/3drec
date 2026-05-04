@@ -23,29 +23,16 @@ Dự án cung cấp sẵn script tự động nhận diện phần cứng GPU v�
 ```bash
 chmod +x build_env.sh
 ./build_env.sh
+docker run -d \
+  --name 3d_reconstruct_table \
+  --gpus all \
+  --ipc=host \
+  -v $(pwd)/data/table:/workspace/3dgrut/data/table:ro \
+  -v /ĐƯỜNG_DẪN_TỚI_Ổ_CỨNG_NGOÀI/workspace_output:/workspace/3dgrut/auto_data \
+  vsfcore-3d-pipeline \
+  ./run_all.sh --exp_name table_run --data_path data/table --data_type images --data_compression 1
 ```
 
-### Bước 2: Khởi động Container
-**Lưu ý quan trọng:** Bắt buộc phải ánh xạ (mount) thư mục `data` từ máy thật vào container để lưu trữ kết quả và không bị mất dữ liệu sau khi tắt.
-```bash
-docker run -it --ipc=host --gpus all -v $(pwd)/data:/workspace/3dgrut/data vsfcore-3d-pipeline
-```
-
----
-
-## ⚡ Chạy thử nghiệm (Quickstart Demo)
-
-Sau khi đã vào bên trong container (Terminal hiện chữ `(3dgrut)`), bạn có thể tải một bộ dữ liệu mẫu về và chạy thử ngay lập tức bằng cụm lệnh sau:
-
-```bash
-# 1. Tải và giải nén dữ liệu mẫu
-gdown "1lSpqDyTZeBzsUzCNJypO4GcaUKod14u6" -O data/pot_images.zip && \
-mkdir -p data/pot && \
-unzip -q data/pot_images.zip -d data/pot/
-
-# 2. Chạy pipeline tái tạo
-./run_all.sh --exp_name pot_demo --data_path data/pot/images --data_type images --data_compression 2
-```
 
 ---
 

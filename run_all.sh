@@ -135,7 +135,7 @@ if [ ! -f "$CACHE_DIR/stage1.done" ]; then
         --database_path "$DB_PATH" \
         --image_path "$IMG_WORK_DIR" \
         --SiftExtraction.max_num_features 8192 \
-        --ImageReader.camera_model PINHOLE
+        --ImageReader.camera_model OPENCV_FISHEYE
 
     xvfb-run -a colmap sequential_matcher \
         --database_path "$DB_PATH" \
@@ -200,6 +200,10 @@ if [ ! -f "$CACHE_DIR/stage3.done" ]; then
         --workspace_path "$DENSE_DIR" \
         --workspace_format COLMAP \
         --output_path "$DENSE_DIR/fused.ply"
+
+    echo "[DỌN RÁC] Đang tiêu hủy thư mục stereo (depth_maps/normal_maps)..."
+    rm -rf "$DENSE_DIR/stereo"
+    echo "[DỌN RÁC] Ổ cứng đã được giải phóng!"
 
     python extract_mesh.py "$DENSE_DIR/fused.ply" "$BASE_DIR/mesh.usd"
 
