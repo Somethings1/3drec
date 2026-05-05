@@ -12,14 +12,14 @@ Dự án cung cấp quy trình (pipeline) tự động hóa việc tái tạo m�
 ## 🚀 Hướng dẫn cài đặt
 
 ### Bước 0: Tải mã nguồn
-Clone dự án về máy của bạn:
+Clone:
 ```bash
 git clone https://github.com/Somethings1/3drec
 cd 3drec
 ```
 
-### Bước 1: Khởi tạo môi trường (Build Image)
-Dự án cung cấp sẵn script tự động nhận diện phần cứng GPU và build Docker image tối ưu nhất. Bạn chỉ cần chạy:
+### Build docker và chạy demo
+
 ```bash
 chmod +x build_env.sh
 ./build_env.sh
@@ -30,7 +30,7 @@ docker run -d \
   -v $(pwd)/data/table:/workspace/3dgrut/data/table:ro \
   -v /ĐƯỜNG_DẪN_TỚI_Ổ_CỨNG_NGOÀI/workspace_output:/workspace/3dgrut/auto_data \
   vsfcore-3d-pipeline \
-  ./run_all.sh --exp_name table_run --data_path data/table --data_type images --data_compression 1
+  /bin/bash -c 'echo "k" | ./run_all.sh --exp_name table_run --data_path data/table --data_type images --data_compression 2'
 ```
 
 

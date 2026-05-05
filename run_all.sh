@@ -164,10 +164,10 @@ if [ ! -f "$CACHE_DIR/stage2.done" ]; then
     echo "========================================"
     echo " GIAI ĐOẠN 2: TRAIN 3DGRUT"
     echo "========================================"
-    python train.py --config-name apps/colmap_3dgut.yaml \
+    conda run -n 3dgrut python train.py --config-name apps/colmap_3dgut.yaml \
        path="$BASE_DIR" out_dir=runs \
        experiment_name="$EXP_NAME" \
-       +export_usdz.enabled=true \
+       export_usd.enabled=true \
        dataset.downsample_factor="$DATA_COMP"
 
     touch "$CACHE_DIR/stage2.done"
