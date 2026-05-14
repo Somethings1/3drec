@@ -5,14 +5,11 @@
 # ==============================================================================
 FROM nvidia/cuda:12.8.1-devel-ubuntu22.04
 
-# Thiết lập môi trường không tương tác để tránh các prompt hỏi đáp khi cài đặt
 ENV DEBIAN_FRONTEND=noninteractive
 
 # ------------------------------------------------------------------------------
 # 1. Cài đặt Dependencies Hệ Thống
 # ------------------------------------------------------------------------------
-RUN sed -i 's|http://archive.ubuntu.com/ubuntu/|http://mirror.download.com.vn/ubuntu/|g' /etc/apt/sources.list && \
-    sed -i 's|http://security.ubuntu.com/ubuntu/|http://mirror.download.com.vn/ubuntu/|g' /etc/apt/sources.list
 
 RUN apt-get update && apt-get install -y \
     gcc-11 g++-11 git ninja-build build-essential \
