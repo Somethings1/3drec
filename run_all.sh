@@ -157,6 +157,42 @@ else
 fi
 
 # ==============================================================================
+# SPATIAL RECONSTRUCTION CLUSTER EVALUATION & SUBSTITUTION
+# ==============================================================================
+if [ -d "$SPARSE_DIR/1" ] && [ ! -f "$CACHE_DIR/stage1_fix.done" ]; then
+    echo "[INFO] Multiple spatial reconstruction clusters detected. Evaluating optimal cluster based on registration payload..."
+
+    # Function to extract payload size (in bytes) of the images file
+    get_payload_size() {
+        local target_dir=$1
+        local size=0
+        if [ -f "$target_dir/images.bin" ]; then
+            size=$(stat -c%s "$target_dir/images.bin")
+        elif [ -f "$target_dir/images.txt" ]; then
+            size=$(stat -c%s "$target_dir/images.txt")
+        fi
+        echo "$size"
+    }
+
+    # Retrieve comparative metrics
+    SIZE_0=$(get_payload_size "$SPARSE_DIR/0")
+    SIZE_1=$(get_payload_size "$SPARSE_DIR/1")
+
+    echo "[INFO] Cluster 0 payload size: $SIZE_0 bytes | Cluster 1 payload size: $SIZE_1 bytes"
+
+    # Evaluate and execute substitution if Cluster 1 is statistically dominant
+    if [ "$SIZE_1" -gt "$SIZE_0" ]; then
+        echo "[INFO] Cluster 1 exhibits a significantly larger reconstruction volume. Executing cluster substitution..."
+        mv "$SPARSE_DIR/0" "$SPARSE_DIR/0_trash"
+        mv "$SPARSE_DIR/1" "$SPARSE_DIR/0"
+    else
+        echo "[INFO] Cluster 0 retains primary validity or equivalence. No topological substitution required."
+    fi
+
+    touch "$CACHE_DIR/stage1_fix.done"
+fi
+
+# ==============================================================================
 # STAGE 2: 3DGRUT TRAINING
 # ==============================================================================
 if [ ! -f "$CACHE_DIR/stage2.done" ]; then
@@ -166,7 +202,7 @@ if [ ! -f "$CACHE_DIR/stage2.done" ]; then
     conda run -n 3dgrut python train.py --config-name apps/colmap_3dgut.yaml \
        path="$BASE_DIR" out_dir=runs \
        experiment_name="$EXP_NAME" \
-       export_usd.enabled=true \
+       export_ply.enabled=true \
        dataset.downsample_factor="$DATA_COMP"
 
     touch "$CACHE_DIR/stage2.done"
@@ -218,26 +254,30 @@ echo "========================================"
 echo " STAGE 4: ARTIFACT COLLECTION"
 echo "========================================"
 
-USDZ_FILE=$(find "runs/$EXP_NAME" -name "export_last.usdz" -type f | head -n 1)
-if [ -n "$USDZ_FILE" ]; then
-    cp "$USDZ_FILE" "$OUTPUT_DIR/${EXP_NAME}_pointcloud.usdz"
-    echo "[SUCCESS] USDZ pointcloud exported to: $OUTPUT_DIR/${EXP_NAME}_pointcloud.usdz"
+# Locate the generated PLY file using a wildcard (retrieves the first match)
+PLY_FILE=$(find "runs/$EXP_NAME" -name "*.ply" -type f | head -n 1)
+
+if [ -n "$PLY_FILE" ]; then
+    cp "$PLY_FILE" "$OUTPUT_DIR/${EXP_NAME}_pointcloud.ply"
+    echo "[SUCCESS] PLY spatial representation successfully extracted to: $OUTPUT_DIR/${EXP_NAME}_pointcloud.ply"
 else
-    echo "[ERROR] USDZ file 'export_last.usdz' not found in runs/$EXP_NAME. 3DGRUT export may have failed."
+    echo "[ERROR] Target PLY artifact not located within runs/$EXP_NAME. The export sequence may have encountered an exception."
 fi
 
+# Retrieve OBJ mesh (if applicable)
 if [ -f "temp_room.obj" ]; then
     mv "temp_room.obj" "$OUTPUT_DIR/${EXP_NAME}_mesh.obj"
-    echo "[SUCCESS] OBJ mesh retrieved from temp_room.obj to: $OUTPUT_DIR/${EXP_NAME}_mesh.obj"
+    echo "[SUCCESS] Topographical mesh retrieved from temp_room.obj to: $OUTPUT_DIR/${EXP_NAME}_mesh.obj"
 else
-    echo "[WARNING] temp_room.obj not found. Extract_mesh script might have failed or ran in wrong directory."
+    echo "[WARNING] temp_room.obj was not detected. The mesh extraction script might have failed or executed in an alternate directory."
 fi
 
-# Grant permissions to avoid host access issues
+# Grant permissions to mitigate host-container access restrictions
 chmod -R 777 "$BASE_DIR"
 
 echo "========================================"
-echo " [COMPLETE] Pipeline execution finished."
+echo " [COMPLETE] Pipeline execution concluded."
 echo " Output directory : $OUTPUT_DIR"
 echo " Execution log    : $LOG_FILE"
 echo "========================================"
+
